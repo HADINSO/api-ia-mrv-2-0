@@ -1,0 +1,129 @@
+====================================
+  API - IA MRV 2.0 - ENDPOINTS
+====================================
+
+Base URL: http://localhost:3000
+
+------------------------------------------------------
+1. POST /api/chat
+------------------------------------------------------
+Descripción: Chat básico (respuesta completa en JSON)
+
+Body (JSON):
+{
+  "messages": [
+    { "role": "user", "content": "¿Cuántas erres tiene la palabra 'strawberry'?" }
+  ]
+}
+
+Respuesta:
+{
+  "id": "...",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Tiene 3 erres."
+      }
+    }
+  ],
+  ...
+}
+
+------------------------------------------------------
+2. POST /api/chat/stream
+------------------------------------------------------
+Descripción: Chat con streaming. La respuesta llega como
+texto plano (SSE - Server Sent Events) carácter por carácter.
+Se usa para mostrar la respuesta en tiempo real.
+
+Body (JSON):
+{
+  "messages": [
+    { "role": "user", "content": "¿Cuántas erres tiene la palabra 'strawberry'?" }
+  ]
+}
+
+Respuesta: Texto plano transmitido en chunks.
+Ejemplo: "Tiene 3 erres."
+
+------------------------------------------------------
+3. POST /api/chat/reasoning
+------------------------------------------------------
+Descripción: Chat con razonamiento habilitado
+(reasoning: { enabled: true }). El modelo muestra su
+proceso de pensamiento antes de dar la respuesta final.
+
+Body (JSON):
+{
+  "messages": [
+    { "role": "user", "content": "¿Cuántas erres tiene la palabra 'strawberry'?" }
+  ]
+}
+
+Respuesta:
+{
+  "id": "...",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "Tiene 3 erres.",
+        "reasoning_details": { ... }
+      }
+    }
+  ],
+  "usage": {
+    "reasoning_tokens": 150,
+    ...
+  }
+}
+
+El campo "reasoning_details" contiene el razonamiento
+del modelo (si está disponible).
+
+------------------------------------------------------
+4. POST /api/chat/continue
+------------------------------------------------------
+Descripción: Continúa una conversación previa preservando
+el razonamiento. Se deben pasar todos los mensajes
+anteriores incluyendo el mensaje del asistente con su
+reasoning_details para que el modelo retome el
+razonamiento desde donde lo dejó.
+
+Body (JSON):
+{
+  "messages": [
+    {
+      "role": "user",
+      "content": "¿Cuántas erres tiene la palabra 'strawberry'?"
+    },
+    {
+      "role": "assistant",
+      "content": "Tiene 3 erres.",
+      "reasoning_details": { ... }
+    },
+    {
+      "role": "user",
+      "content": "¿Estás seguro? Piensa cuidadosamente."
+    }
+  ]
+}
+
+Respuesta:
+{
+  "id": "...",
+  "choices": [
+    {
+      "message": {
+        "role": "assistant",
+        "content": "..."
+      }
+    }
+  ]
+}
+
+====================================
+NOTA: Todos los endpoints requieren
+Content-Type: application/json
+====================================
